@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>
+    {% if edit_mode %}
+        ✏️ Редактирование записи #{{ person.id }}
+    {% else %}
+        👤 Запись #{{ person.id }}
+    {% endif %}
+</h2>
+
+{% if not edit_mode %}
+    <p><strong>Фамилия:</strong> {{ person.last_name }}</p>
+    <p><strong>Имя:</strong> {{ person.first_name }}</p>
+    <p><strong>Отчество:</strong> {{ person.middle_name or '—' }}</p>
+    <p><strong>Пол:</strong> {{ {'male':'Мужской', 'female':'Женский', 'other':'Другой'}[person.gender] }}</p>
+    <hr>
+    <a href="{{ url_for('edit_form', person_id=person.id) }}">✏️ Редактировать</a>
+    <form method="POST" action="{{ url_for('delete_form', person_id=person.id) }}" style="display:inline;"
+          onsubmit="return confirm('Точно удалить?')">
+        <button type="submit" style="background:red;color:white;border:none;padding:0.3rem 0.6rem;">🗑️ Удалить</button>
+    </form>
+    <br><br>
+    <a href="{{ url_for('list_forms') }}">← Назад к списку</a>
+{% else %}
+    <form method="POST">
+        <p>
+            <label>Имя: <input type="text" name="first_name" value="{{ person.first_name }}" required></label>
+        </p>
+        <p>
+            <label>Фамилия: <input type="text" name="last_name" value="{{ person.last_name }}" required></label>
+        </p>
+        <p>
+            <label>Отчество: <input type="text" name="middle_name" value="{{ person.middle_name }}"></label>
+        </p>
+        <p>
+            <label>Пол:
+                <select name="gender" required>
+                    <option value="male" {% if person.gender == 'male' %}selected{% endif %}>Мужской</option>
+                    <option value="female" {% if person.gender == 'female' %}selected{% endif %}>Женский</option>
+                    <option value="other" {% if person.gender == 'other' %}selected{% endif %}>Другой</option>
+                </select>
+            </label>
+        </p>
+        <button type="submit">💾 Сохранить изменения</button>
+        <a href="{{ url_for('view_form', person_id=person.id) }}">❌ Отмена</a>
+    </form>
+{% endif %}
+{% endblock %}

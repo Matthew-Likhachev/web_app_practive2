@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>📝 Новая запись</h2>
+<form method="POST" action="{{ url_for('submit') }}">
+    <p>
+        <label>Имя: <input type="text" name="first_name" required></label>
+    </p>
+    <p>
+        <label>Фамилия: <input type="text" name="last_name" required></label>
+    </p>
+    <p>
+        <label>Отчество: <input type="text" name="middle_name"></label>
+    </p>
+    <p>
+        <label>Пол:
+            <select name="gender" required>
+                <option value="">— Выберите —</option>
+                <option value="male">Мужской</option>
+                <option value="female">Женский</option>
+                <option value="other">Другой</option>
+            </select>
+        </label>
+    </p>
+    <button type="submit">💾 Сохранить</button>
+</form>
+{% endblock %}
