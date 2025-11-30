@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>📋 Все записи ({{ persons|length }})</h2>
+
+{% if persons %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>ФИО</th>
+                <th>Пол</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in persons %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.last_name }} {{ p.first_name }} {% if p.middle_name %}{{ p.middle_name }}{% endif %}</td>
+                <td>{{ {'male':'М', 'female':'Ж', 'other':'—'}[p.gender] }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('view_form', person_id=p.id) }}">👁️</a>
+                    <a href="{{ url_for('edit_form', person_id=p.id) }}">✏️</a>
+                    <form method="POST" action="{{ url_for('delete_form', person_id=p.id) }}" style="display:inline;"
+                          onsubmit="return confirm('Удалить запись {{ p.id }}?')">
+                        <button type="submit" style="background:none;border:none;color:red;cursor:pointer;">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Пока нет ни одной записи. <a href="{{ url_for('index') }}">Добавить?</a></p>
+{% endif %}
+{% endblock %}
