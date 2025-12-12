@@ -1,0 +1,95 @@
+---
+- name: Deploy Flask web app from GitHub
+  hosts: localhost
+  connection: local
+  become: yes
+
+  vars:
+    app_name: web_app_practive2
+    app_user: root
+    app_dir: /app/test
+    repo_url: "https://github.com/Matthew-Likhachev/web_app_practive2.git"
+    python_version: python3
+    venv_dir: "{{ app_dir }}/venv"
+    service_name: web_app_practive2
+
+  tasks:
+
+    - name: Ensure system packages are installed
+      apt:
+        name:
+          - git
+          - python3-venv
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Ensure application user exists
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        create_home: yes
+
+    - name: Ensure application directory exists
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Clone the GitHub repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: "main"
+        force: yes
+        update: yes
+        accept_hostkey: yes
+      become_user: "{{ app_user }}"
+
+    - name: Create Python virtual environment
+      command: "{{ python_version }} -m venv {{ venv_dir }}"
+      args:
+        creates: "{{ venv_dir }}/bin/activate"
+      become_user: "{{ app_user }}"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ venv_dir }}"
+      become_user: "{{ app_user }}"
+      ignore_errors: yes   # если requirements.txt отсутствует, пропустить
+
+    - name: Ensure instance directory exists
+      file:
+        path: "{{ app_dir }}/instance"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+
+    - name: Create systemd service for Flask app
+      copy:
+        dest: "/etc/systemd/system/{{ service_name }}.service"
+        content: |
+          [Unit]
+          Description=Flask Web Application
+          After=network.target
+
+          [Service]
+          User={{ app_user }}
+          WorkingDirectory={{ app_dir }}
+          Environment="PATH={{ venv_dir }}/bin"
+          ExecStart={{ venv_dir }}/bin/python {{ app_dir }}/app.py
+
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Ensure Flask service is running
+      systemd:
+        name: "{{ service_name }}"
+        enabled: yes
+        state: restarted
+        daemon_reload: no
