@@ -2,9 +2,11 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, abort
 import sqlite3
 from pathlib import Path
+import os
 
 app = Flask(__name__)
 app.secret_key = 'very-secret-key-for-dev-only'
+port = int(os.environ.get("PORT", 5000))
 
 DB_PATH = Path("instance/database.db")
 
@@ -104,4 +106,4 @@ def delete_form(person_id):
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=True)
