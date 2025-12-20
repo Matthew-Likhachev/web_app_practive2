@@ -1,7 +1,6 @@
 ---
 - name: Deploy Flask web app from GitHub
-  hosts: localhost
-  connection: local
+  hosts: web
   become: yes
 
   vars:
