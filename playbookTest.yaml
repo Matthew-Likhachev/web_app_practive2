@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    app_name: web_app_practive2
+    app_name: web_app_practive5
     app_user: root
     app_dir: /app/test
     repo_url: "https://github.com/Matthew-Likhachev/web_app_practive2.git"
